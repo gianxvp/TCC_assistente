@@ -1,0 +1,164 @@
+import speech_recognition as sr #adicionada ao artigo
+import pyttsx3 #adicionada ao artigo
+import datetime #adicionada ao artigo
+import wikipedia #adicionada ao artigo
+import pywhatkit #adicionada ao artigo
+import os #adicionada ao artigo
+import requests #adicionada ao artigo
+import pyautogui #adicionada ao artigo
+
+#criando a variável audio para habilitar o microfone
+audio = sr.Recognizer()
+#definindo a vriável maquina como inicializador do pyttsx3
+maquina = pyttsx3.init()
+
+maquina.say("olá, eu sou seu assistente")
+maquina.say("em que posso ajudar?")
+maquina.runAndWait()
+
+#função responsável por capturar os comandos
+def executa_comando():
+    comando = ""
+    try:
+        #chamando o microfone
+        with sr.Microphone(2) as mic:
+            print("Ouvindo...")
+            #definindo o microfone como fonte de audio
+            voz = audio.listen(mic)
+            #selecionando a linguagem ptbr e armazenando o comando
+            comando = audio.recognize_google(voz, language="pt-BR")
+            #transformando o comando para string
+            comando = comando.lower()
+            
+            
+
+    except:
+        print("Microfone não está ok")
+
+
+    return comando
+
+def verifica_nome():
+    #verificando se há o nome do assistente no comando
+    comando = executa_comando()
+    if "assistente" in comando:
+        comando = comando.replace("assistente", "")
+        #comando_voz_usuario()
+        maquina.runAndWait()
+    return comando
+
+#fazendo a verificação se há alguma palavra ralcionada a função no comadno e a partir daí executando
+def comando_voz_usuario():
+    comando = verifica_nome()
+    print(comando)
+    #Colocar nome indígena no assistnete (heroi)
+    #ideia de Sepé Taraju
+    if "horas" in comando:
+        hora = datetime.datetime.now().strftime("%H:%M")
+        maquina.say("Agora são" + hora)
+        maquina.runAndWait()
+    #fazendo uma pesquisa sobre algo e utilizando a biblioteca da wikipedia para saber mais sobre
+    elif "procure por" in comando:
+        procurar = comando.replace("procure por", "")
+        wikipedia.set_lang("pt")
+        resultado = wikipedia.summary(procurar, 2)
+        print(resultado)
+        maquina.say(resultado)
+        maquina.runAndWait()
+    #comando para a pesquisa e reprodução de músicas
+    elif "toque" in comando:
+        musica = comando.replace("toque", "")
+        resultado = pywhatkit.playonyt(musica)
+        maquina.say("Tocando música")
+        maquina.runAndWait()
+    #comando para desligar o computador
+    elif "desligar pc" in comando:
+        #completar fazendo ele fechar os aplicativos abertos e salvar as alterações
+        desliga = "shutdown /s /t 2"
+        os.system(desliga)
+        maquina.runAndWait()
+    #comando para saber mais sobre a previsão do tempo a partir da API openweather
+    elif "tempo" in comando:
+        API_KEY = "6dbbb8941bc1fdda430b4ad5ec84899e"
+        cidade = "Itaperuna"
+        link = f"https://api.openweathermap.org/data/2.5/weather?q={cidade}&appid={API_KEY}&lang=pt_br"
+        requisicao = requests.get(link)
+        requisicao_dic = requisicao.json()
+        descricao = requisicao_dic['weather'][0]['description']
+        temperatura = requisicao_dic['main']['temp'] - 273.15
+        print(descricao, f"{temperatura}ºC")
+        maquina.say(descricao, f"{temperatura} graus celcius")
+        maquina.runAndWait()
+    #Comando para abrir o aplicativo do google
+    elif "google" in comando:
+        os.system('"C:\Program Files\Google\Chrome\Application\chrome.exe"')
+        maquina.runAndWait()
+    #comando para fazer uma pesquisa no google ou outro navegador
+    elif "pesquise" in comando:
+        pesquisa = comando.replace("pesquise", "")
+        pyautogui.write(pesquisa)
+        pyautogui.press("enter")
+        maquina.runAndWait()
+    #comando para entrar em algum site adicionando o ".com" ao final do termo dito pelo usuário
+    elif "entre no site" in comando:
+        site = comando.replace("entre no site", "")
+        pyautogui.write(site + ".com")
+        pyautogui.press("enter")
+        maquina.runAndWait()
+    #comando para abrir uma nova guia no google
+    elif "nova guia" in comando:
+        pyautogui.hotkey("ctrl","t")
+        maquina.runAndWait()
+    #comando para voltar a guia anterior
+    elif "guia anterior" in comando:
+        pyautogui.hotkey("ctrl","shift","tab")
+        maquina.runAndWait()
+    #comando para ir para a próxima guia
+    elif "póxima guia" in comando:
+        pyautogui.hotkey("ctrl", "tab")
+        maquina.runAndWait()
+    #comando para fechar a guia atual
+    elif "feche" in comando:
+        pyautogui.hotkey("ctrl","w")
+        maquina.runAndWait()
+    #comando para subir a página usando a seta para cima 3 vezes
+    elif "desça": #também estou em dúvida sobre em comandos de utilização do sistema colocar somente uma palavra
+        pyautogui.keyDown("pgdn")
+        pyautogui.keyUp("pgdn")
+        maquina.runAndWait()
+    elif "suba":
+        pyautogui.keyDown("pgup")
+        pyautogui.keyUp("pgup")
+        maquina.runAndWait()   
+    #comando para descer a página usando a seta para baixo 3 vezes
+
+        #kiko socorro ele só que descer ou quando o comando de subir está acima ele só sobe
+        #movi estes comandos para junto dos comandos de navegador durante a aula do Orlando ainda não tive a chance de testar
+
+    #comando para adicionar um evento a sua agenda
+    elif "agenda" in comando:
+        dia = comando.replace("dia", "")
+        tarefa = comando.replace("adicione", "")
+        pyautogui.PAUSE = 2
+        pyautogui.press("win")
+        pyautogui.write("chrome")
+        pyautogui.press("backspace")
+        pyautogui.press("enter")
+        pyautogui.click(x = 1108, y = 59)
+        pyautogui.write("https://calendar.google.com/calendar/u/0/r")
+        pyautogui.press("enter")
+        pyautogui.click(x = 98, y = 212)
+        pyautogui.click(x = 87, y = 289)
+        pyautogui.write(tarefa)
+        pyautogui.click(x = 1078, y = 459)
+        pyautogui.write(dia)
+        pyautogui.click(x = 1538, y = 920)
+        maquina.runAndWait()
+    
+    
+while True:
+    #só mais uma coisa estou estranhando que ele após o terceiro comanodo seguido está demorando para executar
+    #ideia que tive durante a aula do Orlando 
+    #chamar o verifica_nome e dentro do verfica_nome retirar a palavra assistente e chamar o comando de voz
+    #ainda não tive chance de testar 
+    comando_voz_usuario()
